@@ -4,3 +4,5 @@ django-haystack
 requests
 elasticsearch
 elasticsearch-dsl
+git+https://github.com/liberation/django_elasticsearch.git
+django-test-without-migrations

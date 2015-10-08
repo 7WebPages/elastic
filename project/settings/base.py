@@ -36,7 +36,6 @@ PROJECT_DOMAIN = '%s.com' % PROJECT_NAME.lower()
 path.append(CONFIG_ROOT)
 path.append(PROJECT_ROOT)
 path.append(os.path.join(PROJECT_ROOT, 'apps'))
-# import pdb; pdb.setb_trace()
 ########## END PATH CONFIGURATION
 
 
@@ -83,6 +82,7 @@ PROJECT_APPS = (
     'elastic_json',
     'elastic_api',
     'elastic_dsl',
+    'elastic_django',
 )
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
