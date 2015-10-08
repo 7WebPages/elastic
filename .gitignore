@@ -1,0 +1,6 @@
+*.pyc
+.env
+collectedstatic/
+*.sqlite3
+local.py
+media/
