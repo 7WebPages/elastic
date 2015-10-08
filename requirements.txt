@@ -1,3 +1,6 @@
 Django
 django-extensions
 django-haystack
+requests
+elasticsearch
+elasticsearch-dsl
