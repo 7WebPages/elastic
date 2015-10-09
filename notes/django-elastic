@@ -1,0 +1,50 @@
+1. pip install git+https://github.com/liberation/django_elasticsearch.git
+2. add new model subclassed from EsIndexable
+3. in case you want all models to be added to index authomatically - add
+ELASTICSEARCH_AUTO_INDEX = True
+to the settings.
+
+after you add some models to index - you're able to search via
+YourModel.es.search
+
+in case you've added facets/completition fields to the Elasticsearch property of
+the model - you're able to have facets and autocomplete:
+
+class Elasticsearch(EsIndexable.Elasticsearch):
+        facets_fields = ['year_in_school', 'age']
+        completion_fields = ['name']
+
+
+facets example:
+
+MyModel.es.search('').facet(['age', 'year_in_school']).facets
+
+Out[1]:
+{u'age': {u'buckets': [{u'doc_count': 4, u'key': 19},
+   {u'doc_count': 1, u'key': 18}],
+  u'doc_count_error_upper_bound': 0,
+  u'sum_other_doc_count': 0},
+ u'doc_count': 5,
+ u'year_in_school': {u'buckets': [{u'doc_count': 2, u'key': u'fr'},
+   {u'doc_count': 2, u'key': u'so'},
+   {u'doc_count': 1, u'key': u'sl'}],
+  u'doc_count_error_upper_bound': 0,
+  u'sum_other_doc_count': 0}}
+
+
+In [2]: MyModel.es.search('FR', fuzziness=2).facet(['age']).facets
+
+Out[2]:
+{u'age': {u'buckets': [{u'doc_count': 4, u'key': 19},
+   {u'doc_count': 1, u'key': 18}],
+  u'doc_count_error_upper_bound': 0,
+  u'sum_other_doc_count': 0},
+ u'doc_count': 5}
+
+In [3]: MyModel.es.complete('name', 'pa')
+Converted retries value: False -> Retry(total=False, connect=None, read=None, redirect=0)
+"POST /django/_suggest HTTP/1.1" 200 179
+POST http://localhost:9200/django/_suggest [status:200 request:0.006s]
+> {"name_complete": {"completion": {"field": "name_complete", "fuzzy": {}}, "text": "pa"}}
+< {"_shards":{"total":5,"successful":5,"failed":0},"name_complete":[{"text":"pa","offset":0,"length":2,"options":[{"text":"papanov","score":1.0},{"text":"paparazzi","score":1.0}]}]}
+Out[3]: [u'papanov', u'paparazzi']

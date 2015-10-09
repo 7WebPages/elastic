@@ -1,0 +1,5 @@
+system: debian 8 (32-bit)
+```apt-get install elasticsearch``` didn't give any activity at localhost:9200
+but, in case you go to
+https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-repositories.html
+everything will be ok
