@@ -1,0 +1,38 @@
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.8.18/themes/base/jquery-ui.css" type="text/css" media="all" />
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+$(function() {
+  $("#search").autocomplete({
+    source: "{% url 'autocomplete-view' %}",
+    minLength: 1,
+  });
+});
+</script>
+
+
+<div class="ui-widget">
+  <label for="search">search: </label>
+  <input id="search">
+</div>
+
+
+<div class="facetes">
+    <div class="age">
+        <p>Age</p>
+
+        {% for age in facets.age.buckets %}
+            <p>{{age.key}}: {{age.doc_count}}</p>
+        {% endfor %}
+
+    </div>
+    <div class="year_in_school">
+        <p>Year in school</p>
+
+        {% for year in facets.year_in_school.buckets %}
+        <p>{{year.key}}: {{year.doc_count}}</p>
+        {% endfor %}
+
+    </div>
+</div>
