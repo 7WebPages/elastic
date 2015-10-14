@@ -48,3 +48,72 @@ POST http://localhost:9200/django/_suggest [status:200 request:0.006s]
 > {"name_complete": {"completion": {"field": "name_complete", "fuzzy": {}}, "text": "pa"}}
 < {"_shards":{"total":5,"successful":5,"failed":0},"name_complete":[{"text":"pa","offset":0,"length":2,"options":[{"text":"papanov","score":1.0},{"text":"paparazzi","score":1.0}]}]}
 Out[3]: [u'papanov', u'paparazzi']
+
+
+Забавный момент: когда переименовываешь (или удаляешь) модельку - старый индекс остается.
+Это как-бы и плюс и минус: с одной стороны - не происходит расхождения и остановки поиска,
+с другой - повышается запутанность если использовать старое название. Или забывается
+место в памяти или на диске (если переходишь на новый индекс, но забыл про старый).
+В общем, это стоит иметь в виду.
+
+
+Также из минусов стоит отметить как хендлятся foreignkey:
+"university": {
+    "id": 1,
+    "value": "University object"
+}
+и это при том, что у университета есть имя.
+С моей точки зрения, elasticsearch - это для скорости поиска, в то же время подобное
+решение эмулирует типа таблички, с типа джойнов. Это приведет к падению скорости при запросах типа
+.filter('university.name'='KNU')
+
+
+Рассмотрим теперь как эта аппликаха работает с m2m (к примеру, теги).
+
+добавив новое m2m-поле courses мы получаем в маппинге
+
+courses": {
+    "type": "object"
+}
+
+И вот так выглядит, в результате, студент с определенным университетом и курсами:
+
+"university":
+    {
+        "id": 1,
+        "value": "University object"
+    },
+"courses":
+    [
+        {
+            "id": 1,
+            "value": "Course object"
+        },
+        {
+            "id": 2,
+            "value": "Course object"
+        }
+    ],
+
+
+Попробуем описать правильный маппинг:
+сlass Elasticsearch(EsIndexable.Elasticsearch):
+    mappings = {
+        "university": {
+            "type": "object",
+            "properties": {
+                "name": {"type": "string"},
+            }
+        }
+    }
+
+После того как ребилданул индекс через Student.es.flush()
+все еще наблюдаю все ту же пару id-value. Печаль. я хочу nested objects.
+Пометка: даже если поменять тип на nested - все равно та же лажа (хотя в маппинге name появился)
+Судя по всему, там сериалайзер не совсем правильно работает
+
+Почитал их тесты - нет протестированного нестинга, есть только тест на рекурсивный foreignkey (на self)
+https://github.com/liberation/django-elasticsearch/blob/master/django_elasticsearch/tests/test_serializer.py
+В принципе, потом пожно будет дописать.
+
+Но, имхо, в большинстве случаев этот уровень абстракции вносит больше сложностей чем полезностей.
