@@ -4,11 +4,11 @@ from django_elasticsearch.models import EsIndexable
 
 
 class University(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
 
 
 class Course(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
 
 
 class Student(EsIndexable, models.Model):

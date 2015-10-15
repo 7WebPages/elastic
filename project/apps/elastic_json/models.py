@@ -10,17 +10,11 @@ options.DEFAULT_NAMES = options.DEFAULT_NAMES + (
 
 
 class University(models.Model):
-    name = models.CharField(max_length=255)
-
-    class Meta:
-        db_table = 'elastic_django_university'
+    name = models.CharField(max_length=255, unique=True)
 
 
 class Course(models.Model):
-    name = models.CharField(max_length=255)
-
-    class Meta:
-        db_table = 'elastic_django_course'
+    name = models.CharField(max_length=255, unique=True)
 
 
 class Student(models.Model):
@@ -36,52 +30,48 @@ class Student(models.Model):
     age = models.SmallIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(100)]
     )
-    name = models.CharField(max_length=255)
+    first_name = models.CharField(max_length=50)
+    last_name = models.CharField(max_length=50)
     # various relationships models
     university = models.ForeignKey(University, null=True, blank=True)
     courses = models.ManyToManyField(Course, null=True, blank=True)
 
     class Meta:
-        db_table = 'elastic_django_student'
         es_index_name = 'django'
         es_type_name = 'student'
         es_mapping = {
+            "_id": {
+                "store": True,
+                'index': 'not_analyzed'
+            },
             'properties': {
-                "_id": {
-                    "index": "not_analyzed",
-                    "store": True
-                },
+                # so that we're able to filter or generate facets based on university
+                # here, we could've used pure university_name, but this is just
+                # an example to illustrate elasticsearch/django
                 'university': {
                     'type': 'object',
+                    "_id": {
+                        "store": True,
+                        'index': 'not_analyzed'
+                    },
                     'properties': {
                         'name': {'type': 'string', 'index': 'not_analyzed'},
-                        'sid': {'type': 'string', 'index': 'not_analyzed'}
                     }
                 },
-                'name': {'type': 'string', 'index': 'not_analyzed'},
+                'first_name': {'type': 'string', 'index': 'not_analyzed'},
+                'last_name': {'type': 'string', 'index': 'not_analyzed'},
                 'age': {'type': 'short'},
                 'year_in_school': {'type': 'string'},
                 'name_complete': {
                     'type': 'completion',
                     'analyzer': 'simple',
-                    'payloads': False,
+                    'payloads': True,  # note that we have to provide payload while updating
                     'preserve_separators': True,
                     'preserve_position_increments': True,
                     'max_input_length': 50
                 },
+                # as elasticsearch doesn't require array to be specified, we
+                # just put string here. As a result, this will be list of strings.
+                "course_names": {"type": "string", "store": "yes", "index": "not_analyzed"},
             }
         }
-
-
-    # class Elasticsearch(EsIndexable.Elasticsearch):
-    #     mappings = {
-    #         'name': {'boost': 3.0},
-    #         'university': {
-    #             'type': 'nested',
-    #             'properties': {
-    #                 'name': {'type': 'string'},
-    #             }
-    #         }
-    #     }
-    #     facets_fields = ['year_in_school', 'age']
-    #     completion_fields = ['name']
