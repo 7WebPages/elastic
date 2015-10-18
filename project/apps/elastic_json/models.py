@@ -39,6 +39,13 @@ class Student(models.Model):
     class Meta:
         es_index_name = 'django'
         es_type_name = 'student'
+        # we make some assumptions:
+        # 1. all model's fields have same names in elasticsearch index.
+        # 2. django's id is stored in _id field
+        # 3. in case you want autocomplete - name the field xxx_complete
+        #    and provide xxx_autocomplete_payload method in case payload is needed.
+        # 4. in case you want to put related objects - please, name them
+        #    in the same way like in model.
         es_mapping = {
             "_id": {
                 "store": True,
@@ -72,6 +79,45 @@ class Student(models.Model):
                 },
                 # as elasticsearch doesn't require array to be specified, we
                 # just put string here. As a result, this will be list of strings.
-                "course_names": {"type": "string", "store": "yes", "index": "not_analyzed"},
+                "course_names": {
+                    "type": "string", "store": "yes", "index": "not_analyzed",
+                    'method': 'get_course_names'
+                },
             }
         }
+
+    def es_repr(self):
+        data = {}
+        mapping = self._meta.es_mapping
+        if not isinstance(mapping, dict) or not mapping.get('properties'):
+            raise TypeError('bad configuration of elasticsearch mapping')
+
+        if mapping.get('_id'):
+            data['_id'] = self.pk
+
+        properties = mapping['properties']
+        for field_name, config in properties.iteritems():
+            if config['type'] == 'object':
+                try:
+                    related_object = getattr(self, field_name)
+                    obj_data = {}
+                    if config.get('_id'):
+                        obj_data['_id'] = related_object.pk
+                        for prop in config['properties'].keys():
+                            obj_data[prop] = getattr(related_object, prop)
+                except AttributeError:
+                    obj_data = getattr(self, 'get_es_%s' % field_name)()
+                data[field_name] = obj_data
+
+            elif config['type'] == 'completion':
+                data[field_name] = getattr(self, '%s_esautocomplete_payload' % field_name)()
+
+            else:
+                if config.get('method'):
+                    data[field_name] = getattr(self, config['method'])()
+                else:
+                    data[field_name] = getattr(self, field_name)
+        return data
+
+    def name_complete_esautocomplete_payload(self):
+        return '%s %s' % (self.first_name, self.last_name)
