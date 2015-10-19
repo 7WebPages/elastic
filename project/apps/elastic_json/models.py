@@ -43,7 +43,7 @@ class Student(models.Model):
         # 1. all model's fields have same names in elasticsearch index.
         # 2. django's id is stored in _id field
         # 3. in case you want autocomplete - name the field xxx_complete
-        #    and provide xxx_autocomplete_payload method in case payload is needed.
+        #    and provide get_es_xxx method.
         # 4. in case you want to put related objects - please, name them
         #    in the same way like in model.
         es_mapping = {
@@ -75,13 +75,13 @@ class Student(models.Model):
                     'payloads': True,  # note that we have to provide payload while updating
                     'preserve_separators': True,
                     'preserve_position_increments': True,
-                    'max_input_length': 50
+                    'max_input_length': 50,
                 },
                 # as elasticsearch doesn't require array to be specified, we
                 # just put string here. As a result, this will be list of strings.
                 "course_names": {
                     "type": "string", "store": "yes", "index": "not_analyzed",
-                    'method': 'get_course_names'
+                    'method': 'get_es_course_names'
                 },
             }
         }
@@ -110,7 +110,7 @@ class Student(models.Model):
                 data[field_name] = obj_data
 
             elif config['type'] == 'completion':
-                data[field_name] = getattr(self, '%s_esautocomplete_payload' % field_name)()
+                data[field_name] = getattr(self, 'get_es_%s' % field_name)()
 
             else:
                 if config.get('method'):
@@ -119,5 +119,14 @@ class Student(models.Model):
                     data[field_name] = getattr(self, field_name)
         return data
 
-    def name_complete_esautocomplete_payload(self):
-        return '%s %s' % (self.first_name, self.last_name)
+    def get_es_name_complete(self):
+        return {
+            "input": [self.first_name, self.last_name],
+            "output": "%s %s" % (self.first_name, self.last_name),
+            "payload": {"pk": self.pk},
+        }
+
+    def get_es_course_names(self):
+        if not self.courses.exists():
+            return []
+        return [c.name for c in self.courses.all()]
