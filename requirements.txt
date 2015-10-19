@@ -8,3 +8,4 @@ git+https://github.com/liberation/django_elasticsearch.git
 django-test-without-migrations
 model_mommy
 names
+django-debug-toolbar==1.4
