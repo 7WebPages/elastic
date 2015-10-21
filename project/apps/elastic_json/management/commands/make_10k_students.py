@@ -19,9 +19,12 @@ class Command(BaseCommand):
 
         # database part
         # make some Universities
+        university_names = (
+            'MIT', 'KNU', 'MGU', 'DonNU', 'CalTech', 'KPI', 'KhPI', 'KhNU', 'DPI', 'PGTU'
+        )
         universities = []
-        for _ in range(10):
-            uni = mommy.make(University)
+        for name in university_names:
+            uni = mommy.make(University, name=name)
             universities.append(uni)
         # make some courses
         template_options = ['CS%s0%s', 'MATH%s0%s', 'CHEM%s0%s', 'PHYS%s0%s']

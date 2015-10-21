@@ -46,6 +46,18 @@ $(function() {
   <div class="row">
     <div class="col-sm-3 col-md-2 sidebar">
       <ul class="nav nav-sidebar">
+        <li class="active"><a href="">University<span class="sr-only">(current)</span></a></li>
+        {% for university in facets.university.buckets %}
+            <li><a href="#">{{university.key}}: {{university.doc_count}}</a></li>
+        {% endfor %}
+      </ul>
+      <ul class="nav nav-sidebar">
+        <li class="active"><a href="">Course<span class="sr-only">(current)</span></a></li>
+        {% for course in facets.courses.buckets %}
+            <li><a href="#">{{course.key}}: {{course.doc_count}}</a></li>
+        {% endfor %}
+      </ul>
+      <ul class="nav nav-sidebar">
         <li class="active"><a href="">Age<span class="sr-only">(current)</span></a></li>
         {% for age in facets.age.buckets %}
             <li><a href="#">{{age.key}}: {{age.doc_count}}</a></li>
