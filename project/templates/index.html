@@ -47,25 +47,19 @@ $(function() {
     <div class="col-sm-3 col-md-2 sidebar">
       <ul class="nav nav-sidebar">
         <li class="active"><a href="">University<span class="sr-only">(current)</span></a></li>
-        {% for university in facets.university.buckets %}
+        {% for university in aggregations.university.buckets %}
             <li><a href="#">{{university.key}}: {{university.doc_count}}</a></li>
         {% endfor %}
       </ul>
       <ul class="nav nav-sidebar">
         <li class="active"><a href="">Course<span class="sr-only">(current)</span></a></li>
-        {% for course in facets.courses.buckets %}
+        {% for course in aggregations.course_names.buckets %}
             <li><a href="#">{{course.key}}: {{course.doc_count}}</a></li>
         {% endfor %}
       </ul>
       <ul class="nav nav-sidebar">
-        <li class="active"><a href="">Age<span class="sr-only">(current)</span></a></li>
-        {% for age in facets.age.buckets %}
-            <li><a href="#">{{age.key}}: {{age.doc_count}}</a></li>
-        {% endfor %}
-      </ul>
-      <ul class="nav nav-sidebar">
         <li class="active"><a href="">Year in school<span class="sr-only">(current)</span></a></li>
-        {% for year in facets.year_in_school.buckets %}
+        {% for year in aggregations.year_in_school.buckets %}
             <li><a href="#">{{year.key}}: {{year.doc_count}}</a></li>
         {% endfor %}
       </ul>
@@ -79,20 +73,22 @@ $(function() {
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>Header</th>
-                  <th>Header</th>
-                  <th>Header</th>
-                  <th>Header</th>
+                  <th>First name</th>
+                  <th>Last name</th>
+                  <th>Age</th>
+                  <th>University name</th>
                 </tr>
               </thead>
               <tbody>
+              {% for hit in hits %}
                 <tr>
-                  <td>1,001</td>
-                  <td>Lorem</td>
-                  <td>ipsum</td>
-                  <td>dolor</td>
-                  <td>sit</td>
+                  <td>{{ hit.pk }}</td>
+                  <td>{{ hit.first_name }}</td>
+                  <td>{{ hit.last_name }}</td>
+                  <td>{{ hit.age }}</td>
+                  <td>{{ hit.university.name }}</td>
                 </tr>
+              {% endfor %}
               </tbody>
             </table>
           </div>

@@ -1,9 +1,17 @@
 from django.views.generic.base import TemplateView
 from elastic_json.models import Student
 from elasticsearch import Elasticsearch
+from copy import deepcopy
 
 
 client = Elasticsearch()
+
+
+def convert_hit_to_template(hit1):
+    hit = deepcopy(hit1)
+    almost_ready = hit['_source']
+    almost_ready['pk'] = hit['_id']
+    return almost_ready
 
 
 class HomePageView(TemplateView):
@@ -35,5 +43,6 @@ class HomePageView(TemplateView):
         cc = client.search(index='django', doc_type='student', body=body)
         # request = self.request
         context = super(HomePageView, self).get_context_data(**kwargs)
-        context['facets'] = Student.es.search('').facet(['age', 'year_in_school']).facets
+        context['hits'] = [convert_hit_to_template(c) for c in cc['hits']['hits']]
+        context['aggregations'] = cc['aggregations']
         return context
