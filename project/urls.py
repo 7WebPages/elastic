@@ -10,7 +10,7 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^search/', search_view, name='search-view'),
     url(r'^autocomplete/', autocomplete_view, name='autocomplete-view'),
-    url(r'', HomePageView.as_view())
+    url(r'', HomePageView.as_view(), name='index-view')
 ]
 
 if settings.DEBUG:
