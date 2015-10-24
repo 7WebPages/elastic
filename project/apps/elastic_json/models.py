@@ -6,13 +6,36 @@ from elasticsearch import Elasticsearch
 
 
 options.DEFAULT_NAMES = options.DEFAULT_NAMES + (
-    'es_index_name', 'es_type_name', 'es_mapping'
+    'es_index_name', 'es_type_name', 'es_mapping', 'es_related'
 )
 es_client = Elasticsearch()
 
 
 class University(models.Model):
     name = models.CharField(max_length=255, unique=True)
+
+    class Meta:
+        # es_related = [('Student', 'university')]
+        es_related = ['Student']
+
+    def save(self, *args, **kwargs):
+        super(type(self), self).save(*args, **kwargs)
+        for watcher in self._meta.es_related:
+            if isinstance(watcher, tuple):
+                watcher_name, related_field_name = watcher
+            else:
+                watcher_name = watcher
+                related_field_name = self._meta.model_name
+
+            watcher_model = __import__(watcher_name)
+            qs = watcher_model.objects.filter(
+                **{
+                    '%s_id' % related_field_name: self.pk
+                }
+            ).values_list('pk', flat=True)
+            for item_pk in qs:
+                item = watcher_model.objects.get(pk=item_pk)
+                item.push_field_to_index(related_field_name)
 
 
 class Course(models.Model):
