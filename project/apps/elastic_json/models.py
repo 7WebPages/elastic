@@ -2,11 +2,13 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 import django.db.models.options as options
+from elasticsearch import Elasticsearch
 
 
 options.DEFAULT_NAMES = options.DEFAULT_NAMES + (
     'es_index_name', 'es_type_name', 'es_mapping'
 )
+es_client = Elasticsearch()
 
 
 class University(models.Model):
@@ -95,29 +97,36 @@ class Student(models.Model):
         if mapping.get('_id'):
             data['_id'] = self.pk
 
-        properties = mapping['properties']
-        for field_name, config in properties.iteritems():
-            if config['type'] == 'object':
-                try:
-                    related_object = getattr(self, field_name)
-                    obj_data = {}
-                    if config.get('_id'):
-                        obj_data['_id'] = related_object.pk
-                        for prop in config['properties'].keys():
-                            obj_data[prop] = getattr(related_object, prop)
-                except AttributeError:
-                    obj_data = getattr(self, 'get_es_%s' % field_name)()
-                data[field_name] = obj_data
-
-            elif config['type'] == 'completion':
-                data[field_name] = getattr(self, 'get_es_%s' % field_name)()
-
-            else:
-                if config.get('method'):
-                    data[field_name] = getattr(self, config['method'])()
-                else:
-                    data[field_name] = getattr(self, field_name)
+        for field_name in mapping['properties'].keys():
+            data[field_name] = self.field_es_repr(field_name)
         return data
+
+    def get_field_config(self, field_name):
+        return self._meta.es_mapping['properties'][field_name]
+
+    def field_es_repr(self, field_name):
+        config = self.get_field_config(field_name)
+        if config['type'] == 'object':
+            try:
+                related_object = getattr(self, field_name)
+                obj_data = {}
+                if config.get('_id'):
+                    obj_data['_id'] = related_object.pk
+                    for prop in config['properties'].keys():
+                        obj_data[prop] = getattr(related_object, prop)
+            except AttributeError:
+                obj_data = getattr(self, 'get_es_%s' % field_name)()
+            field_es_value = obj_data
+
+        elif config['type'] == 'completion':
+            field_es_value = getattr(self, 'get_es_%s' % field_name)()
+
+        else:
+            if config.get('method'):
+                field_es_value = getattr(self, config['method'])()
+            else:
+                field_es_value = getattr(self, field_name)
+        return field_es_value
 
     def get_es_name_complete(self):
         return {
@@ -130,3 +139,16 @@ class Student(models.Model):
         if not self.courses.exists():
             return []
         return [c.name for c in self.courses.all()]
+
+    def push_field_to_index(self, field_name):
+        data = self.field_es_repr(field_name)
+        es_client.update(
+            index=self._meta.es_index_name,
+            doc_type=self._meta.es_type_name,
+            id=self.pk,
+            body={
+                'doc': {
+                    field_name: data
+                }
+            }
+        )
