@@ -47,20 +47,20 @@ $(function() {
     <div class="col-sm-3 col-md-2 sidebar">
       <ul class="nav nav-sidebar">
         <li class="active"><a href="">University<span class="sr-only">(current)</span></a></li>
-        {% for university in aggregations.university %}
-            <li><a href="{% url 'index-view'%}?{{university.url_args}}">{{university.name}}: {{university.count}}</a></li>
+        {% for university in aggregations.university__name %}
+            <li><a href="{% url 'index-view'%}?{{university.url_args}}">{{university.name}}: {{university.count}} ({% if university.is_active %}-{% else %}+{% endif %})</a></li>
         {% endfor %}
       </ul>
       <ul class="nav nav-sidebar">
         <li class="active"><a href="">Course<span class="sr-only">(current)</span></a></li>
         {% for course in aggregations.course_names %}
-            <li><a href="{% url 'index-view'%}?{{course.url_args}}">{{course.name}}: {{course.count}}</a></li>
+            <li><a href="{% url 'index-view'%}?{{course.url_args}}">{{course.name}}: {{course.count}} ({% if course.is_active %}-{% else %}+{% endif %})</a></li>
         {% endfor %}
       </ul>
       <ul class="nav nav-sidebar">
         <li class="active"><a href="">Year in school<span class="sr-only">(current)</span></a></li>
         {% for year in aggregations.year_in_school %}
-            <li><a href="{% url 'index-view'%}?{{year.url_args}}">{{year.name}}: {{year.count}}</a></li>
+            <li><a href="{% url 'index-view'%}?{{year.url_args}}">{{year.name}}: {{year.count}}({% if year.is_active %}-{% else %}+{% endif %})</a></li>
         {% endfor %}
       </ul>
     </div>
