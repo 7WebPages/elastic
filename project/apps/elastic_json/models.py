@@ -2,6 +2,7 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 import django.db.models.options as options
+from django.apps import apps
 from elasticsearch import Elasticsearch
 
 
@@ -16,7 +17,7 @@ class University(models.Model):
 
     class Meta:
         # es_related = [('Student', 'university')]
-        es_related = ['Student']
+        es_related = ['elastic_json.models.Student']
 
     def save(self, *args, **kwargs):
         super(type(self), self).save(*args, **kwargs)
@@ -26,8 +27,15 @@ class University(models.Model):
             else:
                 watcher_name = watcher
                 related_field_name = self._meta.model_name
+            watcher_app = watcher_name.split('.')[0]
+            watcher_modelname = watcher_name.split('.')[-1].lower()
+            all_models = apps.get_models()
+            watcher_model = [
+                m for m in all_models
+                if m._meta.app_label == watcher_app
+                and m._meta.model_name == watcher_modelname
+            ][0]
 
-            watcher_model = __import__(watcher_name)
             qs = watcher_model.objects.filter(
                 **{
                     '%s_id' % related_field_name: self.pk
