@@ -2,7 +2,7 @@ Django
 django-extensions
 django-haystack
 requests
-elasticsearch
+elasticsearch >= 2.0.0, < 3.0.0
 elasticsearch-dsl
 git+https://github.com/liberation/django_elasticsearch.git
 django-test-without-migrations
