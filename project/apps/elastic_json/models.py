@@ -80,20 +80,12 @@ class Student(models.Model):
         # 4. in case you want to put related objects - please, name them
         #    in the same way like in model.
         es_mapping = {
-            "_id": {
-                "store": True,
-                'index': 'not_analyzed'
-            },
             'properties': {
                 # so that we're able to filter or generate facets based on university
                 # here, we could've used pure university_name, but this is just
                 # an example to illustrate elasticsearch/django
                 'university': {
                     'type': 'object',
-                    "_id": {
-                        "store": True,
-                        'index': 'not_analyzed'
-                    },
                     'properties': {
                         'name': {'type': 'string', 'index': 'not_analyzed'},
                     }
@@ -103,7 +95,7 @@ class Student(models.Model):
                 'age': {'type': 'short'},
                 'year_in_school': {'type': 'string'},
                 'name_complete': {
-                    'type': 'completion',
+                    'type': 'completion',  # you have to make a method for completition for sure!
                     'analyzer': 'simple',
                     'payloads': True,  # note that we have to provide payload while updating
                     'preserve_separators': True,
@@ -114,7 +106,6 @@ class Student(models.Model):
                 # just put string here. As a result, this will be list of strings.
                 "course_names": {
                     "type": "string", "store": "yes", "index": "not_analyzed",
-                    'method': 'get_es_course_names'
                 },
             }
         }
@@ -125,8 +116,7 @@ class Student(models.Model):
         if not isinstance(mapping, dict) or not mapping.get('properties'):
             raise TypeError('bad configuration of elasticsearch mapping')
 
-        if mapping.get('_id'):
-            data['_id'] = self.pk
+        data['_id'] = self.pk
 
         for field_name in mapping['properties'].keys():
             data[field_name] = self.field_es_repr(field_name)
@@ -137,24 +127,15 @@ class Student(models.Model):
 
     def field_es_repr(self, field_name):
         config = self.get_field_config(field_name)
-        if config['type'] == 'object':
-            try:
-                related_object = getattr(self, field_name)
-                obj_data = {}
-                if config.get('_id'):
-                    obj_data['_id'] = related_object.pk
-                    for prop in config['properties'].keys():
-                        obj_data[prop] = getattr(related_object, prop)
-            except AttributeError:
-                obj_data = getattr(self, 'get_es_%s' % field_name)()
-            field_es_value = obj_data
-
-        elif config['type'] == 'completion':
+        if hasattr(self, 'get_es_%s' % field_name):
             field_es_value = getattr(self, 'get_es_%s' % field_name)()
-
         else:
-            if config.get('method'):
-                field_es_value = getattr(self, config['method'])()
+            if config['type'] == 'object':
+                related_object = getattr(self, field_name)
+                field_es_value = {}
+                field_es_value['_id'] = related_object.pk
+                for prop in config['properties'].keys():
+                    field_es_value[prop] = getattr(related_object, prop)
             else:
                 field_es_value = getattr(self, field_name)
         return field_es_value

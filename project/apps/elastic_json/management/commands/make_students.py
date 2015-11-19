@@ -52,11 +52,13 @@ class Command(BaseCommand):
 
         # recreate index
         indices_client = IndicesClient(client=Elasticsearch())
-        indices_client.delete(index='django')
-        body = {
-            'mappings': {'student': Student._meta.es_mapping}
-        }
-        indices_client.create(index='django', body=body)
-
+        if indices_client.exists('django'):
+            indices_client.delete(index='django')
+        indices_client.create(index='django')
+        indices_client.put_mapping(
+            doc_type='student',
+            body=Student._meta.es_mapping,
+            index='django'
+        )
         # update part
         put_all_to_index(Student)
