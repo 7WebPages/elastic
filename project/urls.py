@@ -1,7 +1,7 @@
 from django.conf.urls import url, include
 from django.conf import settings
 from django.contrib import admin
-from elastic_json.views import autocomplete_view
+from elastic_json.views import autocomplete_view, student_detail
 from project.index_view import HomePageView
 
 
@@ -9,6 +9,7 @@ urlpatterns = [
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^autocomplete/', autocomplete_view, name='autocomplete-view'),
+    url(r'^student/$', student_detail, name='student-detail'),
     url(r'', HomePageView.as_view(), name='index-view')
 ]
 

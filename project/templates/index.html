@@ -7,6 +7,12 @@ $(function() {
   $("#search").autocomplete({
     source: "{% url 'autocomplete-view' %}",
     minLength: 1,
+    select: function(event, ui) {
+      window.location.href = "{% url 'student-detail' %}" + ui.item.id;
+    },
+    open: function(event, ui) {
+        $(".ui-autocomplete").css("z-index", 1000);
+    }
   });
 });
 </script>

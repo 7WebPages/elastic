@@ -2,6 +2,9 @@ import json
 from django.http import HttpResponse
 
 from elasticsearch import Elasticsearch
+from .models import Student
+
+
 client = Elasticsearch()
 
 
@@ -18,6 +21,14 @@ def autocomplete_view(request):
             }
         }
     )
-    data = json.dumps(resp['hits'])
+    options = resp['name_complete'][0]['options']
+    data = json.dumps(
+        [{'id': i['payload']['pk'], 'value': i['text']} for i in options]
+    )
     mimetype = 'application/json'
     return HttpResponse(data, mimetype)
+
+
+def student_detail(request):
+    return Student.objects.get(pk=student_id)
+
