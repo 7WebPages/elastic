@@ -34,6 +34,9 @@ def prepare_facet_data(aggregations_dict, get_args):
     resp = {}
     for area in aggregations_dict.keys():
         resp[area] = []
+        if area == 'age':
+            resp[area] = aggregations_dict[area]['buckets']
+            continue
         for item in aggregations_dict[area]['buckets']:
             url_args, is_active = facet_url_args(
                 url_args=deepcopy(get_args.dict()),
@@ -101,6 +104,12 @@ class HomePageView(TemplateView):
                         'field': 'year_in_school'
                     }
                 },
+                'age': {
+                    'histogram': {
+                        'field': 'age',
+                        'interval': 2
+                    }
+                }
             },
             # 'query': {'match_all': {}}
         }

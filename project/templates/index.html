@@ -88,11 +88,29 @@ $(function() {
               <tbody>
               {% for hit in hits %}
                 <tr>
-                  <td>{{ hit.pk }}</td>
+                  <td><a href="{% url 'student-detail' %}?student_id={{ hit.pk }}">{{ hit.pk }}</a></td>
                   <td>{{ hit.first_name }}</td>
                   <td>{{ hit.last_name }}</td>
                   <td>{{ hit.age }}</td>
                   <td>{{ hit.university.name }}</td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Count of students</th>
+                  <th>Age of students</th>
+                </tr>
+              </thead>
+              <tbody>
+              {% for age in aggregations.age %}
+                <tr>
+                  <td>{{ age.doc_count }}</td>
+                  <td>{{ age.key }}</td>
                 </tr>
               {% endfor %}
               </tbody>
