@@ -1,5 +1,6 @@
 import json
 from django.http import HttpResponse
+from django.shortcuts import render
 
 from elasticsearch import Elasticsearch
 from .models import Student
@@ -30,5 +31,7 @@ def autocomplete_view(request):
 
 
 def student_detail(request):
-    return Student.objects.get(pk=student_id)
+    student_id = request.GET.get('student_id')
+    student = Student.objects.get(pk=student_id)
+    return render(request, 'student-details.html', context={'student': student})
 
