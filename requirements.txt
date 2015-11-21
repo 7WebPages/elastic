@@ -9,3 +9,4 @@ django-test-without-migrations
 model_mommy
 names
 django-debug-toolbar==1.4
+django-toolbelt

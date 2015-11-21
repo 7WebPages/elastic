@@ -38,6 +38,11 @@ path.append(PROJECT_ROOT)
 path.append(os.path.join(PROJECT_ROOT, 'apps'))
 ########## END PATH CONFIGURATION
 
+########## DATABASE CONFIGURATION
+import dj_database_url
+DATABASES = {}
+DATABASES['default'] = dj_database_url.config()
+########## END DATABASE CONFIGURATION
 
 ########## EMAIL CONFIGURATION
 # https://docs.djangoproject.com/en/dev/ref/settings/#email-subject-prefix
@@ -281,3 +286,10 @@ LOGGING = {
         },
     },
 }
+
+
+# Honor the 'X-Forwarded-Proto' header for request.is_secure()
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Allow all host headers
+ALLOWED_HOSTS = ['*']
