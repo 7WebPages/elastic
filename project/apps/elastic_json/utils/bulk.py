@@ -1,9 +1,9 @@
 from elasticsearch.helpers import bulk
-from elasticsearch import Elasticsearch
+from django.conf import settings
 
 
 def put_all_to_index(model_name):
-    es = Elasticsearch()
+    es = settings.ES_CLIENT
     data = [convert_for_bulk(s, 'create') for s in model_name.objects.all()]
     bulk(client=es, actions=data, stats_only=True)
 

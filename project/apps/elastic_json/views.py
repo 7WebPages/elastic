@@ -1,12 +1,12 @@
 import json
+from django.conf import settings
 from django.http import HttpResponse
 from django.shortcuts import render
 
-from elasticsearch import Elasticsearch
 from .models import Student
 
 
-client = Elasticsearch()
+client = settings.ES_CLIENT
 
 
 def autocomplete_view(request):

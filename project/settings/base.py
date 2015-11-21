@@ -44,6 +44,13 @@ DATABASES = {}
 DATABASES['default'] = dj_database_url.config()
 ########## END DATABASE CONFIGURATION
 
+########## ELASTICSEARCH CONFIGURATION
+from elasticsearch import Elasticsearch
+ES_URL = os.environ.get('SEARCHBOX_URL') or 'http://127.0.0.1:9200/'
+ES_CLIENT = Elasticsearch([ES_URL])
+########## END ELASTICSEARCH CONFIGURATION
+
+
 ########## EMAIL CONFIGURATION
 # https://docs.djangoproject.com/en/dev/ref/settings/#email-subject-prefix
 EMAIL_SUBJECT_PREFIX = '[%s] ' % PROJECT_NAME

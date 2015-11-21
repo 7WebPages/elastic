@@ -2,6 +2,7 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 import django.db.models.options as options
+from django.conf import settings
 from django.apps import apps
 from elasticsearch import Elasticsearch
 
@@ -9,7 +10,7 @@ from elasticsearch import Elasticsearch
 options.DEFAULT_NAMES = options.DEFAULT_NAMES + (
     'es_index_name', 'es_type_name', 'es_mapping', 'es_related'
 )
-es_client = Elasticsearch()
+es_client = settings.ES_CLIENT
 
 
 class University(models.Model):

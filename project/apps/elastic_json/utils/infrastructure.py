@@ -1,8 +1,10 @@
 '''
 We store abstractions to control infrastructure here.
 '''
-from elasticsearch import Elasticsearch
-client = Elasticsearch()
+from django.conf import settings
+
+
+client = settings.ES_CLIENT
 
 
 def create_index(index_name='django'):

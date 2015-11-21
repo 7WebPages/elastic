@@ -1,10 +1,13 @@
-from django.core.management.base import BaseCommand
 import random
 import names
 
 from elasticsearch.client import IndicesClient
-from elasticsearch import Elasticsearch
+
+from django.conf import settings
+from django.core.management.base import BaseCommand
+
 from model_mommy import mommy
+
 from elastic_json.models import Student, University, Course
 from elastic_json.utils.bulk import put_all_to_index
 
@@ -51,7 +54,7 @@ class Command(BaseCommand):
                 stud.courses.add(courses[index])
 
         # recreate index
-        indices_client = IndicesClient(client=Elasticsearch())
+        indices_client = IndicesClient(client=settings.ES_CLIENT)
         if indices_client.exists('django'):
             indices_client.delete(index='django')
         indices_client.create(index='django')

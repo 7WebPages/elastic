@@ -1,11 +1,11 @@
-from django.views.generic.base import TemplateView
-from elastic_json.models import Student
 from urllib import urlencode
-from elasticsearch import Elasticsearch
 from copy import deepcopy
 
+from django.conf import settings
+from django.views.generic.base import TemplateView
 
-client = Elasticsearch()
+
+client = settings.ES_CLIENT
 
 
 def convert_hit_to_template(hit1):
