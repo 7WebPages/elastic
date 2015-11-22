@@ -16,4 +16,5 @@ class Command(BaseCommand):
         base_url = settings.ES_URL
         url = base_url + '/%s/_mapping/%s' % (index, type_name)
         resp = requests.put(url, data=json.dumps(mapping))
+        print resp.text
         assert resp.text == '{"acknowledged":true}'
