@@ -14,6 +14,6 @@ class Command(BaseCommand):
         type_name = Student._meta.es_type_name
         # we have to take "method" fields from mapping, as it's internal word
         base_url = settings.ES_URL
-        url = base_url + '%s/_mapping/%s' % (index, type_name)
+        url = base_url + '/%s/_mapping/%s' % (index, type_name)
         resp = requests.put(url, data=json.dumps(mapping))
         assert resp.text == '{"acknowledged":true}'
