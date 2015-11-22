@@ -46,7 +46,8 @@ DATABASES['default'] = dj_database_url.config()
 
 ########## ELASTICSEARCH CONFIGURATION
 from elasticsearch import Elasticsearch
-ES_URL = os.environ.get('SEARCHBOX_URL') or 'http://127.0.0.1:9200/'
+# ES_URL = os.environ.get('SEARCHBOX_URL') or 'http://127.0.0.1:9200/'
+ES_URL = 'http://paas:87fbdcbb2e89ea58685b739a1bbcfa42@dwalin-us-east-1.searchly.com'
 ES_CLIENT = Elasticsearch([ES_URL])
 ########## END ELASTICSEARCH CONFIGURATION
 

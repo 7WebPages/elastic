@@ -16,7 +16,8 @@ def create_index(index_name='django'):
         index=index_name,
         ignore=400,
         timeout=60,
-        master_timeout=15
+        master_timeout=30,
+        request_timeout=30,
     )
 
 
