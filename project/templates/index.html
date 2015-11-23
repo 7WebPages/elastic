@@ -33,13 +33,14 @@ $(function() {
         <span class="icon-bar"></span>
       </button>
       <a class="navbar-brand" href="{% url 'index-view' %}">Elasticsearch demo @7webpages</a>
+      <a class="navbar-brand" href="https://github.com/7WebPages/elastic">Readme Github</a>
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav navbar-right">
         <li><a href="">Link1</a></li>
       </ul>
       <form class="navbar-form navbar-right">
-        <input type="text" id="search" class="form-control" placeholder="Search...">
+        <input type="text" id="search" class="form-control" placeholder=" Autocomplete Search...">
       </form>
     </div>
   </div>
@@ -51,6 +52,9 @@ $(function() {
 <div class="container-fluid">
   <div class="row">
     <div class="col-sm-3 col-md-2 sidebar">
+      <ul class="nav nav-sidebar">
+        <li class="active"><a href=""><h1>FACETS BY</h1><span class="sr-only">(current)</span></a></li>
+      </ul>
       <ul class="nav nav-sidebar">
         <li class="active"><a href="">University<span class="sr-only">(current)</span></a></li>
         {% for university in aggregations.university__name %}
@@ -71,9 +75,8 @@ $(function() {
       </ul>
     </div>
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-          <h1 class="page-header">Dashboard</h1>
 
-          <h2 class="sub-header">Section title</h2>
+          <h2 class="sub-header">Filtered students list</h2>
           <div class="table-responsive">
             <table class="table table-striped">
               <thead>
@@ -98,6 +101,8 @@ $(function() {
               </tbody>
             </table>
           </div>
+
+          <h2 class="sub-header">Aggregation of students by age</h2>
           <div class="table-responsive">
             <table class="table table-striped">
               <thead>
