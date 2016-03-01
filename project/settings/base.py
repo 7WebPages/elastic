@@ -39,29 +39,13 @@ path.append(os.path.join(PROJECT_ROOT, 'apps'))
 ########## END PATH CONFIGURATION
 
 ########## DATABASE CONFIGURATION
-import dj_database_url
-DATABASES = {}
-DATABASES['default'] = dj_database_url.config()
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'db.sqlite3',
+    }
+}
 ########## END DATABASE CONFIGURATION
-
-########## ELASTICSEARCH CONFIGURATION
-from elasticsearch import Elasticsearch, RequestsHttpConnection
-from urlparse import urlparse
-ES_URL = os.environ.get('SEARCHBOX_URL') or 'http://127.0.0.1:9200/'
-if not urlparse(ES_URL).port:
-    ES_URL += ':80'
-ES_CLIENT = Elasticsearch([ES_URL], connection_class=RequestsHttpConnection)
-########## END ELASTICSEARCH CONFIGURATION
-
-
-########## EMAIL CONFIGURATION
-# https://docs.djangoproject.com/en/dev/ref/settings/#email-subject-prefix
-EMAIL_SUBJECT_PREFIX = '[%s] ' % PROJECT_NAME
-
-# https://docs.djangoproject.com/en/dev/ref/settings/#server-email
-SERVER_EMAIL = 'Serverbot <dev@%s>' % PROJECT_DOMAIN
-########## END EMAIL CONFIGURATION
-
 
 ########## MANAGER CONFIGURATION
 # See https://docs.djangoproject.com/en/dev/ref/settings/#admins
@@ -93,11 +77,7 @@ THIRD_PARTY_APPS = (
 )
 
 PROJECT_APPS = (
-    'elastic_haystack',
-    'elastic_json',
-    'elastic_api',
-    'elastic_dsl',
-    'elastic_django',
+    'core',
 )
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -220,16 +200,6 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     normpath(join(PROJECT_ROOT, 'static')),
 )
-
-# STATICFILES_FINDERS_IGNORE = [
-#     '*.scss',
-#     '*.coffee',
-#     '*.map',
-#     '*.html',
-#     '*.txt',
-#     '*tests*',
-#     '*uncompressed*',
-# ]
 
 # https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#staticfiles-finders
 STATICFILES_FINDERS = (

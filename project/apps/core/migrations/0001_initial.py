@@ -26,10 +26,10 @@ class Migration(migrations.Migration):
                 ('age', models.SmallIntegerField(validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(100)])),
                 ('first_name', models.CharField(max_length=50)),
                 ('last_name', models.CharField(max_length=50)),
-                ('courses', models.ManyToManyField(to='elastic_json.Course', null=True, blank=True)),
+                ('courses', models.ManyToManyField(to='core.Course', null=True, blank=True)),
             ],
             options={
-                'es_mapping': {'properties': {'first_name': {'index': 'not_analyzed', 'type': 'string'}, 'last_name': {'index': 'not_analyzed', 'type': 'string'}, 'university': {'type': 'object', 'properties': {'_id': {'index': 'not_analyzed', 'store': True}, 'name': {'index': 'not_analyzed', 'type': 'string'}}}, 'course_names': {'index': 'not_analyzed', 'type': 'string', 'store': 'yes'}, 'name_complete': {'preserve_separators': True, 'analyzer': 'simple', 'payloads': True, 'max_input_length': 50, 'preserve_position_increments': True, 'type': 'completion'}, 'year_in_school': {'type': 'string'}, '_id': {'index': 'not_analyzed', 'store': True}, 'age': {'type': 'short'}}},
+                'es_mapping': {'properties': {'first_name': {'index': 'not_analyzed', 'type': 'string'}, 'last_name': {'index': 'not_analyzed', 'type': 'string'}, 'age': {'type': 'short'}, 'course_names': {'index': 'not_analyzed', 'type': 'string', 'store': 'yes'}, 'name_complete': {'preserve_separators': True, 'analyzer': 'simple', 'payloads': True, 'max_input_length': 50, 'preserve_position_increments': True, 'type': 'completion'}, 'year_in_school': {'type': 'string'}, 'university': {'type': 'object', 'properties': {'name': {'index': 'not_analyzed', 'type': 'string'}}}}},
                 'es_index_name': 'django',
                 'es_type_name': 'student',
             },
@@ -40,10 +40,13 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(unique=True, max_length=255)),
             ],
+            options={
+                'es_related': ['elastic_json.models.Student'],
+            },
         ),
         migrations.AddField(
             model_name='student',
             name='university',
-            field=models.ForeignKey(blank=True, to='elastic_json.University', null=True),
+            field=models.ForeignKey(blank=True, to='core.University', null=True),
         ),
     ]

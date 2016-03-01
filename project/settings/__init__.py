@@ -1,5 +1,5 @@
 from .base import *
-from .django_elastic import *
+from .elastic import *
 try:
     from .local import *
 except ImportError:
