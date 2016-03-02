@@ -18,7 +18,7 @@ class University(models.Model):
 
     class Meta:
         # es_related = [('Student', 'university')]
-        es_related = ['elastic_json.models.Student']
+        es_related = ['core.models.Student']
 
     def save(self, *args, **kwargs):
         super(type(self), self).save(*args, **kwargs)

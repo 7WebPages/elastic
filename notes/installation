@@ -3,3 +3,4 @@ system: debian 8 (32-bit)
 but, in case you go to
 https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-repositories.html
 everything will be ok
+UPDATE: repos don't work anymore, use .deb file.

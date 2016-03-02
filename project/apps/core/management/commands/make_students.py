@@ -1,5 +1,6 @@
 import random
 import names
+import time
 
 from elasticsearch.client import IndicesClient
 
@@ -8,8 +9,8 @@ from django.core.management.base import BaseCommand
 
 from model_mommy import mommy
 
-from elastic_json.models import Student, University, Course
-from elastic_json.utils.bulk import put_all_to_index
+from core.models import Student, University, Course
+from core.utils.bulk import put_all_to_index
 
 
 class Command(BaseCommand):
@@ -22,6 +23,7 @@ class Command(BaseCommand):
         Student.objects.all().delete()
         University.objects.all().delete()
         Course.objects.all().delete()
+        start = time.time()
 
         # database part
         # make some Universities
@@ -41,17 +43,36 @@ class Command(BaseCommand):
                     name = template % (course_num, num)
                     course = mommy.make(Course, name=name)
                     courses.append(course)
+
+        students = []
         for _ in xrange(options.get('count')[0]):
-            stud = mommy.make(
+            stud = mommy.prepare(
                 Student,
                 university=random.choice(universities),
                 first_name=names.get_first_name(),
                 last_name=names.get_last_name(),
                 age=random.randint(17, 25)
             )
-            for _ in range(random.randint(1, 4)):
-                index = random.randint(0, len(courses)-1)
-                stud.courses.add(courses[index])
+            students.append(stud)
+        Student.objects.bulk_create(students)
+
+        ThroughModel = Student.courses.through
+        stud_courses = []
+        for student_id in Student.objects.values_list('pk', flat=True):
+            courses_already_linked = []
+            for _ in range(random.randint(1, 10)):
+                index = random.randint(0, len(courses) - 1)
+                if index not in courses_already_linked:
+                    courses_already_linked.append(index)
+                else:
+                    continue
+                stud_courses.append(
+                    ThroughModel(
+                        student_id=student_id,
+                        course_id=courses[index].pk
+                    )
+                )
+        ThroughModel.objects.bulk_create(stud_courses)
 
         # recreate index
         indices_client = IndicesClient(client=settings.ES_CLIENT)
@@ -65,3 +86,6 @@ class Command(BaseCommand):
         )
         # update part
         put_all_to_index(Student)
+
+        finish = time.time() - start
+        print '%s items  %s seconds' % (options.get('count')[0], finish)

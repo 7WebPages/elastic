@@ -1,8 +1,8 @@
 from django.conf.urls import url, include
 from django.conf import settings
 from django.contrib import admin
-from elastic_json.views import autocomplete_view, student_detail
-from project.index_view import HomePageView
+from core.views import autocomplete_view, student_detail
+from index_view import HomePageView
 
 
 urlpatterns = [
