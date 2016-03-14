@@ -1,6 +1,6 @@
 # elastic
 This is an open project to show an example app for elasticsearch usage in django.
-To see a demo - go to http://ancient-beach-3344.herokuapp.com/
+To see a demo - go to http://elastic-7webpages.herokuapp.com/
 
 -------
 For now it's just a simple app to start from. In case you want to see examples for haystack and/or for elasticsearch dsl - please, open an issue. In case you want to see aggregation by average mark splitted by age, or you want to see courses ordered by an average students' mark - please, open an issue.
